@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+* {
+    top: 0;
+    left: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body,
+html {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #e2dddd;
+}
+
+/* App Container */
+
+.app-container {
+    color: #3a3737;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.login-form-container {
+    background-color: #fff;
+    width: 500px;
+    height: max-content;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+.login-form-container form {
+    margin: 15px;
+}
+
+/* Forms */
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.input-container input {
+    border-radius: 5px;
+}
+
+.input {
+    resize: vertical;
+    min-height: 40px;
+    height: 40px;
+    padding: 10px 10px;
+    border-radius: 5px;
+    outline: none;
+    color: rgb(37, 37, 37);
+    transition-duration: 0.2s;
+    border: 1px solid transparent;
+    background-color: #e3e7ee;
+}
+
+.text-container {
+    width: 100%;
+    padding: 15px 0 15px 0;
+    display: flex;
+    justify-content: flex-start;
+}
+
+a {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6291fd;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.input[type="submit"],
+.input-submit {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #2869ff;
+    cursor: pointer;
+}
+
+.input-submit {
+    margin-top: 20px;
+}
+
+.input[type="submit"]:hover {
+    background-color: #6291fd;
+}
+
+.input:hover,
+.input:focus {
+    border-color: #6291fd;
+}
+
+label {
+    font-size: 14px;
+    color: rgb(37, 37, 37);
+    font-weight: 600;
+}
+
+.second-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(109, 109, 109);
+}
+
+.other-options-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.or-text {
+    margin-bottom: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #706a6a;
+}
+
+.option-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 250px;
+}
+
+.google-auth-button {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    width: 120px;
+    height: 40px;
+    cursor: pointer;
+    background-color: #293757;
+    transition-duration: 0.2s;
+}
+
+.google-auth-button:hover {
+    background-color: transparent;
+    border: 2px solid #293757;
+    color: #3a3737;
+}
+
+.google-logo {
+    margin-right: 5px;
+}
+
+.signup-redirect {
+    display: flex;
+    flex-direction: row;
+    margin: 20px 0 20px 0;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    color: #706a6a;
+}
+
+.signup-redirect a {
+    margin-left: 5px;
+}
+
+.error-container, .forgot-password-error-container {
+    display: none;
+    border-radius: 5px;
+    border: 1px solid rgb(202, 132, 132);
+    background-color: rgb(253, 145, 145);
+    color: rgb(117, 40, 40);
+    margin-top: 15px;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.error-signup {
+    display: flex;
+}
+
+.success-container, .forgot-password-success-container {
+    display: none;
+    border-radius: 5px;
+    border: 1px solid rgb(108, 197, 135);
+    background-color: rgba(104, 207, 113, 0.671);
+    color: rgb(22, 66, 42);
+    margin-top: 15px;
+    padding: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Error Labels */
+
+.error-label {
+    margin-top: 5px;
+    display: none;
+    color: #b14f48;
+    font-style: italic;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.error {
+    border-color: #b14f48;
+}
+
+/* Forgot Password Form */
+
+.forgot-password-container {
+    display: none;
+}
+
+.show {
+    display: flex;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000000c7;
+    z-index: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.show form {
+    display: flex;
+    background-color: #fff;
+    padding: 15px;
+    z-index: 2;
+    border-radius: 5px;
+    min-width: 30%;
+    flex-direction: column;
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    font-size: 11px;
+}
+
+.form-header svg {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.close-icon {
+    width: 24px;
+    height: 24px;
+}

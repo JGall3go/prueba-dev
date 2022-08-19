@@ -1,0 +1,257 @@
+extends ../dashboard/index.pug
+
+block content
+
+  .app-content
+    .app-content-header
+
+      .sidebar-menu-icon(onclick="dropMenu()")
+        svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+          title Menu
+          path(fill='none' stroke-linecap='round' stroke-miterlimit='10' stroke-width='32' d='M80 160h352M80 256h352M80 352h352')
+
+      h1.app-content-headerText Products
+      button.mode-switch(onclick='modeSwitch()' title='Switch Theme')
+        svg.moon(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' width='24' height='24' viewbox='0 0 24 24')
+          defs
+          path(d='M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z')
+      button.app-content-headerButton(onclick="showForm()") Add Product
+
+    .app-content-actions
+      form(action=urlParameters)
+        .search-container
+          input.search-bar(name='search_bar' placeholder='Search...' type='text' autocomplete="off" value=searchQuery required)
+        if sort
+          input(type="hidden" name="sort" value=sort)
+          input.search-input(type='submit')
+        
+        if searchQuery
+          if sort != undefined
+            a.close-search-query(href="/dashboard/products?sort="+sort) Search:
+              span= searchQuery
+              svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+                title Close
+                path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+          else
+            a.close-search-query(href="/dashboard/products") Search:
+              span= searchQuery
+              svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+                title Close
+                path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+
+      .app-content-actions-wrapper
+
+        .filter-button-wrapper
+          button.action-button.filter.jsFilter(onclick='filterMenu()')
+            span Sort
+            svg.feather.feather-filter(xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewbox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round')
+              polygon(points='22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3')
+
+          // Search Bar
+          .filter-menu
+            form(action="/dashboard/products" onkeydown="return event.key != 'Enter';")
+
+              label Sort by
+              select.mi-selector(name='sort' style="width: 100%")
+                if sort == "Oldest First"
+                  option(Selected) Oldest First
+                else
+                  option() Oldest First
+                if sort == "Newest First"
+                  option(Selected) Newest First
+                else
+                  option() Newest First
+
+              .filter-menu-buttons
+                button.filter-button.apply(type='submit')
+                  | Apply
+
+        button.action-button.list.active(onclick='listView()' title='List View')
+          svg.feather.feather-list(xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewbox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round')
+            line(x1='8' y1='6' x2='21' y2='6')
+            line(x1='8' y1='12' x2='21' y2='12')
+            line(x1='8' y1='18' x2='21' y2='18')
+            line(x1='3' y1='6' x2='3.01' y2='6')
+            line(x1='3' y1='12' x2='3.01' y2='12')
+            line(x1='3' y1='18' x2='3.01' y2='18')
+
+        button.action-button.grid(onclick='gridView()' title='Grid View')
+          svg.feather.feather-grid(xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewbox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round')
+            rect(x='3' y='3' width='7' height='7')
+            rect(x='14' y='3' width='7' height='7')
+            rect(x='14' y='14' width='7' height='7')
+            rect(x='3' y='14' width='7' height='7')
+
+    .products-area-wrapper.tableView
+      .products-header
+        .product-cell.image
+          | Items
+        .product-cell.category
+          | Category
+        .product-cell.status-cell
+          | Status
+        .product-cell.stock
+          | Stock
+        .product-cell.vendor
+          | Vendor
+        .product-cell.price
+          | Price
+
+      // Products
+      - var count = 0;
+      each product in products[0]
+        - count++
+        div(class=["product-body-container", "body-"+count] onclick="hideDescription("+count+")")
+          .product-body
+            h4= product.node.title
+            span= product.node.descriptionHtml
+        .products-row(onclick="showDescription("+count+")")
+          .product-cell.image
+            img(src='https://png.pngtree.com/png-vector/20190615/ourmid/pngtree-instagramcameraimage--flat-color-icon--vector-icon-banner-te-png-image_1486651.jpg' alt='product')
+            span= product.node.title
+          .product-cell.category= product.node.productType
+            span.cell-label
+          .product-cell.status-cell
+            span.cell-label Status:
+
+            // Status Active or Draft
+            if product.node.status == "ACTIVE"
+              span.status.active Active
+            if product.node.status == "DRAFT"
+              span.status.draft Draft
+            if product.node.status == "ARCHIVED"
+              span.status.archived Archived
+
+          .product-cell.stock
+            span.cell-label Stock:
+            span= product.node.variants.nodes[0].inventoryQuantity
+          .product-cell.vendor
+            span.cell-label Vendor:
+            span= `${product.node.vendor}`
+          .product-cell.price
+            span.cell-label Price:
+            span= `$${product.node.variants.nodes[0].price}`
+      else
+        .products-row 
+          .product-cell No products found.
+
+      // Back
+      .pagination-buttons
+        form(action="/dashboard/products" method='get' onkeydown="return event.key != 'Enter';")
+          input(type="hidden" name="back" value=bpage)
+          if searchQuery
+            input(type="hidden" name="search_bar" value=searchQuery)
+          if sort
+            input(type="hidden" name="sort" value=sort)
+
+          button.icon-back.icon-container(disabled=!previousPage type='submit')
+            svg.ionicon(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+              title Back
+              path(fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='48' d='M328 112L184 256l144 144')
+
+        // Forward
+        form(action="/dashboard/products" method='get' onkeydown="return event.key != 'Enter';")
+          input(type="hidden" name="forward" value=npage)
+          if searchQuery
+            input(type="hidden" name="search_bar" value=searchQuery)
+          if sort
+            input(type="hidden" name="sort" value=sort)
+
+          button.icon-forward.icon-container(disabled=!nextPage type='submit')
+            svg.ionicon(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+              title Forward
+              path(fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='48' d='M184 112l144 144-144 144')
+
+    .form-container
+      .form-background(onclick="closeForm()")
+      .create-form
+        .form-header
+          h2 Create product
+          button(onclick="closeForm()")
+            svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+              title Close
+              path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+            span Discard
+
+        form(action='/dashboard/products/create' method='post' onkeydown="return event.key != 'Enter';")
+          input(type="hidden" name="_csrf" value=CSRF)
+
+          .input-container
+            label.label(for='') Product title
+            input.input(name='title' type='text' placeholder=' ' autocomplete='off' required)
+
+          .input-container
+            label.label Full description
+            span.richtexteditor-container
+            textarea.input(name='fullDescription' type='text' placeholder=' ' autocomplete='off' required)
+
+          .input-container
+            label.label(for='') Vendor
+            input.input(name='vendor' type='text' placeholder=' ' autocomplete='off' required)
+
+          .tags-container
+            input#input-tag(name='tags' type='text' autocomplete='off')
+            label.label(for='') Tags 
+              span.optional-text - Optional
+            .add-tag-section#add-tag-section
+              #all-tags
+
+              .input-tag-container
+                input#add-tag-input(type="text" onkeydown="createTag(event)" placeholder="Press enter to add..." autocomplete='off')
+                span(onclick="createTag(event)")
+                  svg.ionicon(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+                    title Add
+                    path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M256 112v288M400 256H112')
+
+            label.error-label.error-repeated-label Cannot add repeated tags
+            label.error-label.error-tags-label Cannot add more than 250 tags
+            label.error-label.error-characters-label Cannot add a tag longer than 255 characters
+
+          .input-container
+            label.label(for='') Product type
+            input.input(name='productType' type='text' placeholder=' ' autocomplete='off' required)
+
+          .input-container
+            label.label(for='') Price
+            input.input(name='price' type='number' placeholder=' ' autocomplete='off' required)
+
+          .input-container
+            label.label(for='') Cost 
+              span.optional-text - Optional
+            input.input(name='cost' type='number' placeholder=' ' autocomplete='off')
+
+          .submit-container
+            input(type="submit" value="Submit" onsubmit="return false;")
+
+  .notification-container
+    if showNotify == "success"
+      .popup.popup-success
+        svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+          title Checkmark Circle
+          path(d='M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z' fill='none' stroke-miterlimit='10' stroke-width='32')
+          path(fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M352 176L217.6 336 160 272')
+
+        span Success:
+          span Created product
+
+        svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512' onclick="hideNotify()")
+          title Close
+          path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+      script.
+        showNotify();
+
+    if showNotify == "error"
+      .popup.popup-error
+        svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512')
+          title Close Circle
+          path(d='M448 256c0-106-86-192-192-192S64 150 64 256s86 192 192 192 192-86 192-192z' fill='none' stroke='currentColor' stroke-miterlimit='10' stroke-width='32')
+          path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M320 320L192 192M192 320l128-128')
+
+        span Error:
+          span Product could not be created
+
+        svg(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512' , onclick="hideNotify()")
+          title Close
+          path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+      script.
+        showNotify();

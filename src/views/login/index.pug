@@ -1,0 +1,186 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(http-equiv='X-UA-Compatible' content='IE=edge')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+
+  // Css Files
+  link(rel='stylesheet' type='text/css' href='../css/login.css')
+
+  title Sign In
+
+body
+  .app-container
+
+    .login-form-container
+      form#signin-form
+        h2 Sign In
+        input(type="hidden" name="_csrf" value=CSRF)
+
+        .input-container
+          label(for="") Email
+          input.input(type="text" name="email" autocomplete="off")
+
+        .input-container
+          label(for="") Password 
+          input.input(type="password" name="password" autocomplete="off")
+
+        .error-container
+          span Incorrect Email or Password
+
+        .success-container
+          span Welcome
+
+        .text-container
+          a(onclick="forgotForm()")#forgot-password-btn Forgot Password?
+
+        .input-container(style="margin: 0px")
+          input.input(type="submit" value="Sign In")
+
+        .other-options-container
+          span.or-text or sign in with
+          span.option-container
+            button.google-auth-button(onclick="loginWithGoogle()")
+              span.google-logo
+                img(src='https://rotulosmatesanz.com/wp-content/uploads/2017/09/2000px-Google_G_Logo.svg_.png' width='20px')
+              span Google
+
+        .signup-redirect
+          span Not yet member?
+          a(href="/signup") Sign Up
+
+    .forgot-password-container
+      form#forgot-password-form
+        .form-header
+          h2 Password Recovery
+          svg.close-icon(xmlns='http://www.w3.org/2000/svg' viewbox='0 0 512 512' onclick="forgotForm()")
+            title Close
+            path(fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='40' d='M368 368L144 144M368 144L144 368')
+
+        input(type="hidden" name="_csrf" value=CSRF)
+        .input-container
+          label(for="") Email
+          input.input(type="text" name="email" autocomplete="off")
+        .forgot-password-error-container
+          span Incorrect Email
+        .forgot-password-success-container
+          span Mail Sent
+        .input-container
+          input.input(type="submit" value="Submit")
+
+  // Firebase Login
+  script(src='https://www.gstatic.com/firebasejs/7.14.1/firebase-app.js' defer='')
+  script(src='https://www.gstatic.com/firebasejs/7.14.1/firebase-auth.js' defer='')
+  script(src='https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js' defer='')
+
+  // Login with Email and Password
+  script.
+    window.addEventListener("DOMContentLoaded", () => {
+
+      // Firebase Credentials
+      const firebaseConfig = {
+        apiKey: "AIzaSyAEypjukZBThxbwSTs9vBiqj8ILxLC2W5M",
+        authDomain: "prueba-dev-crud.firebaseapp.com",
+        databaseURL: "https://prueba-dev-crud-default-rtdb.firebaseio.com",
+        projectId: "prueba-dev-crud",
+        storageBucket: "prueba-dev-crud.appspot.com",
+        messagingSenderId: "940200174084",
+        appId: "1:940200174084:web:e89a5d9c43dbe28a4b8b51",
+        measurementId: "G-BLM2PM8E8L"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+      const user = firebase.auth().currentUser;
+
+      document.getElementById("signin-form").addEventListener("submit", (event) => {
+
+        event.preventDefault();
+        const email = event.target.email.value;
+        const password = event.target.password.value;
+
+        firebase.auth().signInWithEmailAndPassword(email, password)
+          .then(({ user }) => {
+            return user.getIdToken().then((idToken) => {
+              return fetch("/sessionLogin", {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                  "CSRF-Token": Cookies.get("XSRF-TOKEN"),
+                },
+                body: JSON.stringify({ idToken, email }),
+              });
+            });
+          })
+          .then(() => {
+            return firebase.auth().signOut();
+          })
+          .then(() => {
+            document.querySelector('.error-container').style.display = "none";
+            document.querySelector('.success-container').style.display = "flex";
+            window.location.assign("/dashboard/products");
+          })
+          .catch((error) => {
+            document.querySelector('.error-container').style.display = "flex";
+          })
+        return false;
+      });
+    });
+
+  // Login with Google Popup
+  script.
+    var loginWithGoogle = function(){
+
+      var provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider)
+      .then(({ user }) => {
+        var email = user.email;
+        return user.getIdToken().then((idToken) => {
+          return fetch("/sessionLogin", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "CSRF-Token": Cookies.get("XSRF-TOKEN"),
+            },
+            body: JSON.stringify({ idToken, email }),
+          });
+        });
+      })
+      .then(() => {
+        document.querySelector('.error-container').style.display = "none";
+        document.querySelector('.success-container').style.display = "flex";
+        window.location.assign("/dashboard/products");
+      })
+      .then(() => {
+        return firebase.auth().signOut();
+      })
+      .catch(function(error) {
+        document.querySelector('.error-container').style.display = "flex";
+      });
+    }
+
+  // Forgot password
+  script.
+    function forgotForm(){
+      document.querySelector('.forgot-password-container').classList.toggle("show");
+    }
+
+    document.getElementById("forgot-password-form").addEventListener("submit", (event) => {
+      
+      event.preventDefault();
+      const email = event.target.email.value;
+
+      firebase.auth().sendPasswordResetEmail(email)
+        .then(function() {  
+          document.querySelector('.forgot-password-error-container').style.display = "none";
+          document.querySelector('.forgot-password-success-container').style.display = "flex";
+          document.querySelector('.forgot-password-container').classList.toggle("show");
+          window.location.assign("/dashboard/products");
+        })
+        .catch(function(error) {
+          document.querySelector('.forgot-password-error-container').style.display = "flex";
+        });
+    })
